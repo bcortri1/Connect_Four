@@ -11,21 +11,23 @@ let HEIGHT = 6;
 let currPlayer = 1; // active player: 1 or 2
 let board = []; // array of rows, each row is array of cells  (board[y][x])
 
+
 /** makeBoard: create in-JS board structure:
  *    board = array of rows, each row is array of cells  (board[y][x])
  */
 
 const makeBoard = () => {
-  for(let i = 0; i < HEIGHT; i++){
+  for (let i = 0; i < HEIGHT; i++) {
     board.push(new Array(WIDTH).fill(null));
+    //board.push(Array.from({ length: WIDTH }))
   }
 };
 
 /** makeHtmlBoard: make HTML table and row of column tops. */
 
 function makeHtmlBoard() {
-//"htmlBoard" variable from the item in HTML w/ID of "board"
-const htmlBoard = document.querySelector('#board');
+  //"htmlBoard" variable from the item in HTML w/ID of "board"
+  const htmlBoard = document.querySelector('#board');
   // Creates top table row element
   const top = document.createElement("tr");
   top.setAttribute("id", "column-top");
@@ -53,8 +55,8 @@ const htmlBoard = document.querySelector('#board');
 
 /** findSpotForCol: given column x, return top empty y (null if filled) */
 function findSpotForCol(x) {
-  for(let y = HEIGHT-1; y >= 0;y--){
-    if (board[y][x] == null){
+  for (let y = HEIGHT - 1; y >= 0; y--) {
+    if (!board[y][x]) {
       return y;
     }
   }
@@ -66,18 +68,21 @@ function placeInTable(y, x) {
   const piece = document.createElement("div");
   const targetCell = document.getElementById(`${y}-${x}`);
   piece.classList.add("piece");
-  if (currPlayer == 1){
-    piece.classList.add("p1");
-  }
-  else{
-    piece.classList.add("p2");
-  };
+  // if (currPlayer === 1) {
+  //   piece.classList.add("p1");
+  // }
+  // else {
+  //   piece.classList.add("p2");
+  // };
+
+  piece.classList.add(`p${currPlayer}`);
   targetCell.append(piece);
 }
 
 /** endGame: announce game end */
 function endGame(msg) {
-  alert(msg);
+  document.querySelector('#column-top').removeEventListener("click", handleClick);
+  setTimeout(function(){alert(msg)},800);
 }
 
 /** handleClick: handle click of column top to play piece */
@@ -87,7 +92,7 @@ function handleClick(evt) {
 
   // get next spot in column (if none, ignore click)
   let y = findSpotForCol(x);
-  if (y === null) {
+  if (!y) {
     return;
   }
 
@@ -102,17 +107,19 @@ function handleClick(evt) {
   }
 
   // Checks if the top row is full which would end in a Tie
-  if (board[0].every((val) => val !== null)){
+  if (board[0].every((val) => val !== null)) {
     endGame("It's a TIE!");
   }
 
   // switch currPlayer 1 <-> 2
-  if(currPlayer == 1){
-    currPlayer = 2;
-  }
-  else {
-    currPlayer = 1;
-  }
+  // if (currPlayer === 1) {
+  //   currPlayer = 2;
+  // }
+  // else {
+  //   currPlayer = 1;
+  // }
+
+  currPlayer = currPlayer === 1 ? 2 : 1;
 }
 
 /** checkForWin: check board cell-by-cell for "does a win start here?" */
@@ -141,7 +148,7 @@ function checkForWin() {
       let vert = [[y, x], [y + 1, x], [y + 2, x], [y + 3, x]];
       let diagDR = [[y, x], [y + 1, x + 1], [y + 2, x + 2], [y + 3, x + 3]];
       let diagDL = [[y, x], [y + 1, x - 1], [y + 2, x - 2], [y + 3, x - 3]];
-      
+
       if (_win(horiz) || _win(vert) || _win(diagDR) || _win(diagDL)) {
         return true;
       }
